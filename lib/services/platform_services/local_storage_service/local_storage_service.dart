@@ -1,39 +1,11 @@
-import 'package:msa_assessment/model/transaction_model.dart';
+import 'package:msa_assessment/model/expense_model.dart';
 
-import '../../../model/user_model.dart';
 import '../../../database/database_helper.dart';
 import '../../../helpers/service_result.dart';
 
 class LocalStorageService {
   final DatabaseHelper databaseHelper;
   LocalStorageService(this.databaseHelper);
-
-
-  Future<ServiceResult<int>> createUser(User user) async {
-    try {
-      final db = await databaseHelper.database;
-      var res = await db.insert('Users', user.toJson());
-      return ServiceResult(StatusCode.success, '', res);
-    } catch (e) {
-      return ServiceResult(StatusCode.error, e.toString(), -99);
-    }
-  }
-
-  Future<ServiceResult<User?>> findUserByEmail(String email) async {
-    try {
-      final db = await databaseHelper.getDatabase();
-      final List<Map<String, dynamic>> maps =
-          await db.query('Users', where: 'email = ?', whereArgs: [email]);
-      var user = maps.isNotEmpty ? User.fromJson(maps.first) : null;
-      if (user != null) {
-        return ServiceResult(StatusCode.success, "User found", user);
-      } else {
-        return ServiceResult(StatusCode.failure, "User not found", user);
-      }
-    } catch (e) {
-      return ServiceResult(StatusCode.error, e.toString(), null);
-    }
-  }
 
   Future<ServiceResult<List<Expense>?>> getExpenses() async {
     try {

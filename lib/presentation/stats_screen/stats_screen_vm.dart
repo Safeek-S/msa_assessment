@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:msa_assessment/model/transaction_model.dart';
+import 'package:msa_assessment/model/expense_model.dart';
 import 'package:msa_assessment/presentation/stats_screen/stats_screen_model.dart';
 
 class StatsScreenVM extends StatsScreenModel {
@@ -8,6 +8,17 @@ class StatsScreenVM extends StatsScreenModel {
       var res = await localStorageService.getExpenses();
       expenseStore.setExpenses(ObservableList.of(res.data!));
       setSortExpenses(expenseStore.expenses);
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+ 
+  
+  Future<void> deleteExpense(String id)async{
+    try {
+      var res = await localStorageService.deleteExpense(id);
+      print(res.statusCode);
     } catch (e) {
       print(e.toString());
     }

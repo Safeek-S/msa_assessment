@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:msa_assessment/presentation/expense_list_screen/expense_list_screen_vm.dart';
+import 'package:msa_assessment/presentation/widgets/no_expenses/no_expenses.dart';
 
-import '../../model/transaction_model.dart';
+import '../../model/expense_model.dart';
 import '../widgets/expense_list/expense_list.dart';
+import '../widgets/section_header/section_header.dart';
 
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({Key? key}) : super(key: key);
@@ -38,15 +40,18 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
         title: const Text('All Expenses'),
       ),
       body: SingleChildScrollView(
-        child: Column(
+        child: vm.expenseStore.expenses.isEmpty? SizedBox(
+          height: MediaQuery.sizeOf(context).height,
+          child: noExpense(context)) :
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildSectionHeader('This Week'),
+            buildSectionHeader('This Week',20),
             Observer(builder: (context) {
               return buildExpensesList(
                   vm.expenses.getTransactionsForCurrentWeek(), vm);
             }),
-            buildSectionHeader('Past Expenses'),
+            buildSectionHeader('Past Expenses',20),
             Observer(builder: (context) {
               return buildExpensesList(
                   vm.expenses.getTransactionsForPastWeeks(), vm);
@@ -57,18 +62,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
     );
   }
 
-  Widget buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
+
 
 
 }

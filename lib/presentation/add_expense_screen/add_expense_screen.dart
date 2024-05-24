@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:msa_assessment/presentation/add_expense_screen/add_expense_screen_vm.dart';
 
-import '../../model/transaction_model.dart';
+import '../../model/expense_model.dart';
 import '../../utils/utlils.dart';
 import '../widgets/calculator_widget/calculator_widget.dart';
 
@@ -49,6 +49,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     ];
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    amountController.dispose();
+    dateController.dispose();
+    notesController.dispose();
+  }
+
   Future<void> selectDate(BuildContext context) async {
     final DateTime? selectedDate = await showDatePicker(
         context: context,
@@ -67,101 +75,162 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.sizeOf(context).height;
+    double width = MediaQuery.sizeOf(context).width;
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            await vm.fetchExpenses();
+            Navigator.pop(context, vm.expenseStore.expenses);
+          },
+        ),
+        automaticallyImplyLeading: false,
+        title: vm.operation == "Add"
+            ? const Text('Add Expense')
+            : const Text('Update Expense'),
+      ),
       body: SingleChildScrollView(
         child: Observer(builder: (context) {
-          return Column(
-            children: [
-              vm.operation == "Add"
-                  ? const Text('Add Expense')
-                  : const Text('Update Expense'),
-              TextFormField(
-                controller:
-                    dateController, //editing controller of this TextField
-                decoration: const InputDecoration(
-                    suffixIcon: Icon(Icons.calendar_today), //icon of text field
-                    labelText: "Enter Date" //label text of field
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.04,
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: height * 0.02,
+                ),
+                TextFormField(
+                  controller: dateController,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(
+                      Icons.date_range,
+                      color: Color(0xff6200EE),
+                      size: 25,
                     ),
-                readOnly: true, // when true user cannot edit text
-
-                onTap: () async {
-                  selectDate(context);
-                },
-              ),
-              DropdownButton<ExpenseCategory>(
-                value: vm.selectedCategory,
-                hint: const Text('Choose a category'),
-                isExpanded: true,
-                items: ExpenseCategory.values.map((ExpenseCategory category) {
-                  return DropdownMenuItem<ExpenseCategory>(
-                    value: category,
-                    child:
-                        Text(category.name.toUpperCase()), // Display enum name
-                  );
-                }).toList(),
-                onChanged: (ExpenseCategory? category) {
-                  vm.setExpenseCategory(category!);
-                },
-              ),
-              TextField(
-                controller: notesController,
-                minLines: 4,
-                maxLines: 6,
-                decoration: const InputDecoration(
-                  // labelText: 'Enter expression',
-
-                  border: OutlineInputBorder(),
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    selectDate(context);
+                  },
                 ),
-                onChanged: vm.setNotes,
-                keyboardType: TextInputType.text,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10), // Rounded corners
+                SizedBox(
+                  height: height * 0.03,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  children: [
-                    Expanded(
+                DropdownButton<ExpenseCategory>(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.01),
+                  value: vm.selectedCategory,
+                  // hint: const Text('Choose a category'),
+                  isExpanded: true,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                  items: ExpenseCategory.values.map((ExpenseCategory category) {
+                    return DropdownMenuItem<ExpenseCategory>(
+                      value: category,
                       child: Text(
-                        vm.calculatedAmount,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        vm.setCalculatedAmount('');
-                        vm.equation = "";
-                      },
-                      icon: const Icon(
-                        Icons.backspace,
-                        size: 30,
-                      ),
-                    ),
-                  ],
+                          category.name.toUpperCase()), // Display enum name
+                    );
+                  }).toList(),
+                  onChanged: (ExpenseCategory? category) {
+                    vm.setExpenseCategory(category!);
+                  },
                 ),
-              ),
-      
-              CalculatorGrid(onPressed: vm.onPressed),
-              Observer(
-                builder: (context) {
+                SizedBox(
+                  height: height * 0.03,
+                ),
+                TextField(
+                  controller: notesController,
+                  minLines: 4,
+                  maxLines: 6,
+                  decoration: const InputDecoration(
+                    hintText: 'Add notes',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: vm.setNotes,
+                  keyboardType: TextInputType.text,
+                ),
+                SizedBox(
+                  height: height * 0.04,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10), // Rounded corners
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: width * 0.01),
+                        child: const Text(
+                          '\u{20B9}',
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            vm.calculatedAmount,
+                            style: const TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          vm.setCalculatedAmount('');
+                          vm.equation = "";
+                        },
+                        icon: const Icon(
+                          Icons.backspace_outlined,
+                          size: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: height * 0.03,
+                ),
+                CalculatorGrid(onPressed: vm.onPressed),
+                SizedBox(
+                  height: height * 0.03,
+                ),
+                Observer(builder: (context) {
                   return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        backgroundColor: const Color(0xff6200EE),
+                        fixedSize: Size(width * 0.9, height * 0.05)),
                     onPressed: () async {
-                      print(!(RegExp(r'[+\-*/]').hasMatch(vm.calculatedAmount.trim())));
-                      if (!(RegExp(r'[+\-*/]').hasMatch(vm.calculatedAmount.trim())) == true) {
+                     
+                      if (!(RegExp(r'[+\-*/]')
+                              .hasMatch(vm.calculatedAmount.trim())) ==
+                          true) {
                         await vm.performCrud();
                         Navigator.pop(context, vm.expenseStore.expenses);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Complete the calculation!')));
+                            const SnackBar(
+                                content: Text('Complete the calculation!')));
                       }
                     },
-                    child: const Text('Done'),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                   );
-                }
-              ),
-            ],
+                }),
+              ],
+            ),
           );
         }),
       ),

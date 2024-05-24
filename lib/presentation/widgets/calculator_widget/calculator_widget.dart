@@ -43,10 +43,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calculator'),
+        title: const Text('Calculator'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,12 +66,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       Icons.backspace,
                       size: 30,
                     )),
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               onChanged: _updateText,
               keyboardType: TextInputType.text,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             CalculatorGrid(onPressed: _onPressed),
           ],
         ),
@@ -84,15 +84,20 @@ class CalculatorGrid extends StatelessWidget {
 
   CalculatorGrid({required this.onPressed});
 
-  Widget _buildButton(String text) {
+  Widget _buildButton(String text, double elevation, Color buttonColor) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(5.0),
         child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: buttonColor,
+            elevation: elevation,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3))
+          ),
           onPressed: () => onPressed(text),
           child: Text(
             text,
-            style: TextStyle(fontSize: 24.0),
+            style: const TextStyle(fontSize: 24.0,color: Colors.black),
           ),
         ),
       ),
@@ -105,34 +110,34 @@ class CalculatorGrid extends StatelessWidget {
       children: [
         Row(
           children: [
-            _buildButton('+'),
-            _buildButton('7'),
-            _buildButton('8'),
-            _buildButton('9'),
+            _buildButton('+',0,const Color(0xffE6D6FD)),
+            _buildButton('7',0,Colors.transparent),
+            _buildButton('8',0,Colors.transparent),
+            _buildButton('9',0,Colors.transparent),
           ],
         ),
         Row(
           children: [
-            _buildButton('-'),
-            _buildButton('4'),
-            _buildButton('5'),
-            _buildButton('6'),
+            _buildButton('-',0,const Color(0xffE6D6FD)),
+            _buildButton('4',0,Colors.transparent),
+            _buildButton('5',0,Colors.transparent),
+            _buildButton('6',0,Colors.transparent),
           ],
         ),
         Row(
           children: [
-            _buildButton('\u00D7'),
-            _buildButton('1'),
-            _buildButton('2'),
-            _buildButton('3'),
+            _buildButton('\u00D7',0,const Color(0xffE6D6FD)),
+            _buildButton('1',0,Colors.transparent),
+            _buildButton('2',0,Colors.transparent),
+            _buildButton('3',0,Colors.transparent),
           ],
         ),
         Row(
           children: [
-            _buildButton('\u00F7'),
-            _buildButton('0'),
-            _buildButton('.'),
-            _buildButton('='),
+            _buildButton('\u00F7',0,const Color(0xffE6D6FD)),
+            _buildButton('0',0,Colors.transparent),
+            _buildButton('.',0,Colors.transparent),
+            _buildButton('=',0,const Color(0xffE6D6FD)),
           ],
         ),
       ],

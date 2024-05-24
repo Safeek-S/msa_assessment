@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import '../../model/transaction_model.dart';
+import '../../model/expense_model.dart';
 
 part 'expense_store.g.dart';
 class ExpenseStore = _ExpenseStore with _$ExpenseStore;

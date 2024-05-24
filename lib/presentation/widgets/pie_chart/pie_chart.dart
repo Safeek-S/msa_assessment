@@ -2,27 +2,31 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:msa_assessment/presentation/widgets/pie_chart/pie_chart_model.dart';
 
-import '../../../model/transaction_model.dart';
+import '../../../model/expense_model.dart';
+import '../../../utils/utlils.dart';
 import 'indicator.dart';
 
 class PieChartWidget extends StatefulWidget {
   final List<Expense> expenses;
   final List<String> categories;
+  final double totalExpense;
   final Map<String, double> categoryTotals;
   const PieChartWidget(
       {super.key,
       required this.expenses,
       required this.categoryTotals,
-      required this.categories});
+      required this.categories, required this.totalExpense,});
 
   @override
   State<PieChartWidget> createState() => _PieChartWidgetState();
 }
 
 class _PieChartWidgetState extends State<PieChartWidget> {
-  int touchedIndex = -1;
-
+  PieChartModel model = PieChartModel();
+  
   @override
   void initState() {
     // TODO: implement initState
@@ -39,39 +43,45 @@ class _PieChartWidgetState extends State<PieChartWidget> {
             height: 18,
           ),
           Expanded(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          touchedIndex = -1;
-                          return;
-                        }
-                        touchedIndex = pieTouchResponse
-                            .touchedSection!.touchedSectionIndex;
-                      });
-                    },
+            flex: 2,
+            child: Observer(
+              builder: (context) {
+                return AspectRatio(
+                  aspectRatio: 1,
+                  child: PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              model.setTouchIndex(-1);
+                              return;
+                            }
+                            model.setTouchIndex(pieTouchResponse
+                                .touchedSection!.touchedSectionIndex);
+                         
+                        },
+                      ),
+                      borderData: FlBorderData(
+                        show: false,
+                      ),
+                      sectionsSpace: 0,
+                      centerSpaceRadius: 40,
+                      sections:
+                          calculateSections(widget.expenses, widget.categoryTotals,widget.totalExpense),
+                    ),
                   ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 40,
-                  sections:
-                      calculateSections(widget.expenses, widget.categoryTotals),
-                ),
-              ),
+                );
+              }
             ),
           ),
           Expanded(
+            flex: 1,
             child: ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return Column(children: [
                   Indicator(
@@ -79,7 +89,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
                     text: widget.categories[index],
                     isSquare: true,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 4,
                   ),
                 ]);
@@ -95,46 +105,22 @@ class _PieChartWidgetState extends State<PieChartWidget> {
     );
   }
 
-  Color getColorForCategory(int index) {
-    const List<Color> categoryColors = [
-      Color(0xFF50E4FF), // Cyan
-      Color(0xFFFFC300), // Yellow
-      Color(0xFFFF683B), // Orange
-      Color(0xFF3BFF49), // Green
-      Color(0xFF6E1BFF), // Purple
-    ];
-    return categoryColors[index % categoryColors.length];
-  }
-
-  List<Color> _generateColors(int count) {
-    final List<Color> colors = [];
-    final Random random = Random();
-    for (int i = 0; i < count; i++) {
-      final color = Color.fromARGB(
-        255,
-        random.nextInt(256),
-        random.nextInt(256),
-        random.nextInt(256),
-      );
-      colors.add(color);
-    }
-    return colors;
-  }
+ 
 
   List<PieChartSectionData> calculateSections(
-      List<Expense> expenses, Map<String, double> categoryTotals) {
+      List<Expense> expenses, Map<String, double> categoryTotals,double totalExpense) {
     const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
     List<PieChartSectionData> sections = [];
     categoryTotals.keys.toList().asMap().forEach((index, category) {
-      final isTouched = index == touchedIndex;
-      final fontSize = isTouched ? 25.0 : 16.0;
-      final radius = isTouched ? 60.0 : 50.0;
+      final isTouched = index == model.touchIndex;
+      final fontSize = isTouched ? 20.0 : 16.0;
+      final radius = isTouched ? 70.0 : 50.0;
       sections.add(
         PieChartSectionData(
           color: getColorForCategory(index),
           value: categoryTotals[category]!,
           title:
-              '${(categoryTotals[category]! / expenses.length).toStringAsFixed(2)}%',
+              '${(categoryTotals[category]! / totalExpense * 100).toStringAsFixed(2)}%',
           radius: radius,
           titleStyle: TextStyle(
               fontSize: fontSize,

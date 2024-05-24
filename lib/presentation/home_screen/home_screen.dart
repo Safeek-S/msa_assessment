@@ -13,14 +13,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   void initState() {
     // TODO: implement initState
-
-
     super.initState();
-    // vm.fetchExpenses();
+  
   }
 
   final List<BottomNavigationBarItem> items = [
@@ -32,21 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
       icon: Icon(Icons.bar_chart),
       label: 'Stats',
     ),
-    // const BottomNavigationBarItem(
-    //   icon: Icon(Icons.person),
-    //   label: 'Profile',
-    // ),
-    // Add more items here if needed
   ];
 
   late List<Widget> screens = [
-    DashboardScreen(
-
-    ),
-    StatsScreen(
-
-    ),
-    // Add more pages here corresponding to the items
+    const DashboardScreen(),
+    const StatsScreen(),
   ];
   final BottomNavigationModel model = BottomNavigationModel();
   @override

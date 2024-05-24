@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:msa_assessment/helpers/service_result.dart';
-import 'package:msa_assessment/model/transaction_model.dart';
+import 'package:msa_assessment/model/expense_model.dart';
 import 'package:msa_assessment/presentation/add_expense_screen/add_expense_screen_model.dart';
 import 'package:msa_assessment/utils/utlils.dart';
 
@@ -68,71 +68,15 @@ void onPressed(String buttonText) {
     } else {
       equation += buttonText;
     }
-    print(equation);
     setCalculatedAmount(equation);
   }
 }
 
-// Helper function to check if a character is an operator
 bool isOperator(String character) {
   return character == '+' || character == '-' || character == '×' || character == '÷' || character == '%';
 }
 
-
-
-  // onPressed(String buttonText) {
-  //   // used to check if the calculatedAmount contains a decimal
-  //   String doesContainDecimal(dynamic calculatedAmount) {
-  //     if (calculatedAmount.toString().contains('.')) {
-  //       List<String> splitDecimal = calculatedAmount.toString().split('.');
-  //       if (!(int.parse(splitDecimal[1]) > 0)) {
-  //         return calculatedAmount = splitDecimal[0].toString();
-  //       }
-  //     }
-  //     return calculatedAmount;
-  //   }
-
-  //   if (buttonText == "C") {
-  //     equation = equation.substring(0, equation.length - 1);
-  //     if (equation == "") {
-  //       equation = "0";
-  //     }
-  //   } else if (buttonText == "+/-") {
-  //     if (equation[0] != '-') {
-  //       equation = '-$equation';
-  //     } else {
-  //       equation = equation.substring(1);
-  //     }
-  //   } else if (buttonText == "=") {
-  //     expression = equation;
-  //     expression = expression.replaceAll('×', '*');
-  //     expression = expression.replaceAll('÷', '/');
-  //     expression = expression.replaceAll('%', '%');
-
-  //     try {
-  //       Parser p = Parser();
-  //       Expression exp = p.parse(expression);
-
-  //       ContextModel cm = ContextModel();
-  //       setCalculatedAmount('${exp.evaluate(EvaluationType.REAL, cm)}');
-  //       if (expression.contains('%')) {
-  //         setCalculatedAmount(doesContainDecimal(calculatedAmount));
-  //       }
-  //     } catch (e) {
-  //       setCalculatedAmount("Error");
-  //     }
-  //   } else {
-  //     if (equation == "0") {
-  //       equation = buttonText;
-  //       setCalculatedAmount(equation);
-  //     } else {
-  //       equation = equation + buttonText;
-  //       setCalculatedAmount(equation);
-  //     }
-  //   }
-  // }
-
-  setExpenseData() {
+  void setExpenseData() {
     try {
       if (expense != null) {
         setCalculatedAmount(expense!.amount.toString());
@@ -146,7 +90,6 @@ bool isOperator(String character) {
       print(e.toString());
     }
   }
-
 
   Future<void> performCrud() async{
     try {
@@ -166,16 +109,15 @@ bool isOperator(String character) {
           amount: double.parse(calculatedAmount),
           createdAt: DateFormat('dd-MM-yyyy').parse(formattedDate));
       var res = await localStorageService.createExpense(expenseData);
-      print(res.statusCode);
       if (res.statusCode == StatusCode.success) {
-        await displayExpenses();
+        await fetchExpenses();
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Future<void> displayExpenses() async {
+  Future<void> fetchExpenses() async {
     try {
       var res = await localStorageService.getExpenses();
       expenseStore.setExpenses(ObservableList.of(res.data!));
@@ -196,7 +138,7 @@ bool isOperator(String character) {
           createdAt: DateFormat('dd-MM-yyyy').parse(formattedDate));
       var res = await localStorageService.updateExpense(expenseData);
       if (res.statusCode == StatusCode.success) {
-        await displayExpenses();
+        await fetchExpenses();
       }
     } catch (e) {
       print(e.toString());

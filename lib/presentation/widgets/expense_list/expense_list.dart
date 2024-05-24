@@ -1,9 +1,10 @@
   import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
+import 'package:msa_assessment/presentation/stats_screen/stats_screen_vm.dart';
 
 import '../../../helpers/app_navigation/app_routes.dart';
-import '../../../model/transaction_model.dart';
+import '../../../model/expense_model.dart';
+import '../../../utils/utlils.dart';
 import '../../dashboard_screen/dashboard_screen_vm.dart';
 import '../../expense_list_screen/expense_list_screen_vm.dart';
 
@@ -28,6 +29,11 @@ Widget buildExpensesList(List<Expense> expenses, Object vm) {
                       vm.deleteExpense(expenses[index].id!),
                       vm.displayExpenses()
                     ]);
+                  }else if(vm is StatsScreenVM){
+                      await Future.wait([
+                      vm.deleteExpense(expenses[index].id!),
+                      vm.fetchExpenses()
+                    ]);
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -35,32 +41,47 @@ Widget buildExpensesList(List<Expense> expenses, Object vm) {
                   );
                 },
                 background: Container(
+                  padding: EdgeInsets.only(right: 14),
                   color: Colors.red,
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  // padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: const Icon(
                     Icons.delete,
+                    size: 40,
                     color: Colors.white,
                   ),
                 ),
                 child: ListTile(
+                  shape: RoundedRectangleBorder(),
                   onTap: () async {
                     var expensesData = await Navigator.pushNamed(
                             context, AppRoute.addExpenseScreen.routeName,
                             arguments: ['Update', expenses[index]])
                         as List<Expense>;
-                    print(expensesData.length);
+                  
                     if (vm is ExpenseListScreenVM) {
                       vm.setExpenses(expensesData);
                     } else if (vm is DashboardScreenVM) {
                       vm.expenseStore.setExpenses(ObservableList.of(expensesData));
+                    }else if(vm is StatsScreenVM){
+                      vm.setSortExpenses(ObservableList.of(expensesData));
                     }
                     ;
                   },
-                  title: Text(expenses[index].category.name),
-                  subtitle: Text(DateFormat('d MMMM, y')
-                      .format(expenses[index].createdAt)),
-                  trailing: Text('Rs. ${expenses[index].amount}'),
+                  leading: Container(
+                    width: 60,
+                    height: 60,
+
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: getColorBasedOnCategory(expenses[index].category,''),
+                    ),
+                    // padding: EdgeInsets.symmetric(horizontal: 5,vertical:10 ),
+                    child: Center(child: getIconBasedOnCategory(expenses[index].category)),
+                  ),
+                  title: Text(expenses[index].category.name, style: const TextStyle(fontWeight: FontWeight.bold),),
+                  subtitle: Text(expenses[index].description!,overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 16),),
+                  trailing: Text('Rs.${expenses[index].amount}',style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                 ),
               );
             },

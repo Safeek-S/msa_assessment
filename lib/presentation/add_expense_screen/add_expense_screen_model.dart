@@ -3,7 +3,7 @@ import 'package:mobx/mobx.dart';
 import 'package:msa_assessment/database/database_helper.dart';
 
 import '../../helpers/global_state/expense_store.dart';
-import '../../model/transaction_model.dart';
+import '../../model/expense_model.dart';
 import '../../services/platform_services/local_storage_service/local_storage_service.dart';
 import '../../utils/utlils.dart';
 part 'add_expense_screen_model.g.dart';
