@@ -1,16 +1,18 @@
 # msa_assessment
 
-A new Flutter project.
+This is a simple expense tracker where a user can log their expenses.
 
-## Getting Started
+## Setup
+- Pull the code to your local system
+- Run 'flutter pub get' to fetch the package versions
+- Run 'flutter run' to test it in the device/emulator
 
-This project is a starting point for a Flutter application.
+## Architecture and design
+- I've used the MVVM design pattern for this application, which focuses on separating business logic from the UI.
+- The state-management tool I preferred here was Mobx, which uses reactive programming and automatically rebuilds the UI based on the changes to the observables.
+- Since the application is not complex, I thought we could use simple state management like Mobx rather than using Bloc.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Testing
+- Here, I've used Mockito and flutter_test dependencies to write the unit tests.
+- The purpose of Mockito here is to mock the objects to simulate the behavior of real-time objects.
+- So first, I've to set up the essentials and then, stub and expect the expected behavior of the method.
